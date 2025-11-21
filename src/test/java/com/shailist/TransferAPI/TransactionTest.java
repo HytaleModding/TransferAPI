@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2025 Shai List and contributors
+ * Licensed under the MIT license. See LICENSE file in the project root for details.
+ */
+
 package com.shailist.TransferAPI;
 
 import com.shailist.TransferAPI.api.transfer.v1.transaction.Transaction;
@@ -6,10 +11,9 @@ import com.shailist.TransferAPI.api.transfer.v1.transaction.base.SnapshotPartici
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TransactionTest {
-    public class TransactionalString extends SnapshotParticipant<String> {
+    public static class TransactionalString extends SnapshotParticipant<String> {
         private String value;
 
         public TransactionalString(String startingValue) {
