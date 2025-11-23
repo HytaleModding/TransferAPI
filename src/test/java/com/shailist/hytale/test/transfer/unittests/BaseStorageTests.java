@@ -21,11 +21,9 @@ package com.shailist.hytale.test.transfer.unittests;
 
 import java.util.Iterator;
 
+import com.shailist.hytale.api.transfer.v1.storage.base.FixedVariantStorage;
 import com.shailist.hytale.api.transfer.v1.storage.base.ResourceAmount;
-import com.shailist.hytale.test.transfer.unittests.utils.SingleStringStorage;
-import com.shailist.hytale.test.transfer.unittests.utils.StringConstants;
-import com.shailist.hytale.test.transfer.unittests.utils.StringVariant;
-import com.shailist.hytale.test.transfer.unittests.utils.TestStorageUtil;
+import com.shailist.hytale.test.transfer.unittests.utils.*;
 import org.junit.jupiter.api.Test;
 
 import com.shailist.hytale.api.transfer.v1.storage.Storage;
@@ -164,4 +162,27 @@ public class BaseStorageTests {
 		// Iterator should not have a next element...
         assertFalse(iterator.hasNext());
 	}
+
+    @Test
+    public void testFixedVariantStorage() {
+        StringVariant hello = StringVariant.of(StringConstants.HELLO);
+        StringVariant world = StringVariant.of(StringConstants.WORLD);
+
+        FixedVariantStorage<StringVariant> storage = FixedStringStorage.withFixedCapacity(hello, 10L * StringConstants.UNIT);
+
+        assertEquals(0L, storage.amount);
+        assertEquals(StringVariant.blank(), storage.variant);
+
+        // Insertion of a non-allowed variant into an empty storage should fail.
+        assertEquals(0L, TestStorageUtil.insert(storage, world, StringConstants.UNIT));
+
+        // Insertion of allowed variant into an empty storage should succeed.
+        assertEquals(StringConstants.UNIT, TestStorageUtil.insert(storage, hello, StringConstants.UNIT));
+
+        // Insertion of a non-allowed variant into a non-empty storage should fail.
+        assertEquals(0L, TestStorageUtil.insert(storage, world, StringConstants.UNIT));
+
+        // Extraction from a non-empty storage with the allowed variant should succeed.
+        assertEquals(StringConstants.UNIT, TestStorageUtil.extract(storage, hello, StringConstants.UNIT));
+    }
 }

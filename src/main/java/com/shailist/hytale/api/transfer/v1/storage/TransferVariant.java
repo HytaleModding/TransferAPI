@@ -69,7 +69,7 @@ public interface TransferVariant<O> {
 //     }
 
     /**
-     * Return {@code true} if the object of this variant matches the passed fluid.
+     * Return {@code true} if the object of this variant matches the passed resource.
      */
     default boolean isOf(O object) {
         return getObject() == object;
