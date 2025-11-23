@@ -20,6 +20,7 @@
 package com.shailist.hytale.api.transfer.v1.storage;
 
 import com.shailist.hytale.api.transfer.v1.transaction.TransactionContext;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A view of a single stored resource in a {@link Storage}, for use with {@link Storage#iterator}.
@@ -32,7 +33,7 @@ public interface StorageView<T> {
      *
      * @return The amount that was extracted.
      */
-    long extract(T resource, long maxAmount, TransactionContext transaction);
+    long extract(T resource, long maxAmount, @NotNull TransactionContext transaction);
 
     /**
      * Return {@code true} if the {@link #getResource} contained in this storage view is blank, or {@code false} otherwise.

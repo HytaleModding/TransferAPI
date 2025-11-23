@@ -25,6 +25,7 @@ import java.util.Objects;
 
 import com.shailist.hytale.api.transfer.v1.transaction.Transaction;
 import com.shailist.hytale.api.transfer.v1.transaction.TransactionContext;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A base participant implementation that modifies itself during transactions,
@@ -88,7 +89,7 @@ public abstract class SnapshotParticipant<T> implements Transaction.CloseCallbac
 	 * committed or rolled back.
 	 * This function should be called every time the participant is about to change its internal state as part of a transaction.
 	 */
-	public void updateSnapshots(TransactionContext transaction) {
+	public void updateSnapshots(@NotNull TransactionContext transaction) {
 		// Make sure we have enough storage for snapshots
 		while (snapshots.size() <= transaction.nestingDepth()) {
 			snapshots.add(null);
@@ -105,7 +106,7 @@ public abstract class SnapshotParticipant<T> implements Transaction.CloseCallbac
 	}
 
 	@Override
-	public void onClose(TransactionContext transaction, Transaction.Result result) {
+	public void onClose(@NotNull TransactionContext transaction, Transaction.Result result) {
 		// Get and remove the relevant snapshot.
 		T snapshot = snapshots.set(transaction.nestingDepth(), null);
 

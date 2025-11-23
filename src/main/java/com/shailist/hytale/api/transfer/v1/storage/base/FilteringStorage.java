@@ -136,7 +136,7 @@ public abstract class FilteringStorage<T> implements Storage<T> {
 	}
 
 	@Override
-	public long insert(T resource, long maxAmount, TransactionContext transaction) {
+	public long insert(T resource, long maxAmount, @NotNull TransactionContext transaction) {
 		if (canInsert(resource)) {
 			return backingStorage.get().insert(resource, maxAmount, transaction);
 		} else {
@@ -150,7 +150,7 @@ public abstract class FilteringStorage<T> implements Storage<T> {
 	}
 
 	@Override
-	public long extract(T resource, long maxAmount, TransactionContext transaction) {
+	public long extract(T resource, long maxAmount, @NotNull TransactionContext transaction) {
 		if (canExtract(resource)) {
 			return backingStorage.get().extract(resource, maxAmount, transaction);
 		} else {
@@ -184,7 +184,7 @@ public abstract class FilteringStorage<T> implements Storage<T> {
 		}
 
 		@Override
-		public long extract(T resource, long maxAmount, TransactionContext transaction) {
+		public long extract(T resource, long maxAmount, @NotNull TransactionContext transaction) {
 			if (canExtract(resource)) {
 				return backingView.extract(resource, maxAmount, transaction);
 			} else {

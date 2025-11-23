@@ -2,6 +2,7 @@ package com.shailist.hytale.test.transfer.unittests.utils;
 
 import com.shailist.hytale.api.transfer.v1.transaction.TransactionContext;
 import com.shailist.hytale.api.transfer.v1.transaction.base.SnapshotParticipant;
+import org.jetbrains.annotations.NotNull;
 
 public class TransactionalString extends SnapshotParticipant<String> {
     private String value;
@@ -14,7 +15,7 @@ public class TransactionalString extends SnapshotParticipant<String> {
         return this.value;
     }
 
-    public void set(String newValue, TransactionContext transaction) {
+    public void set(String newValue, @NotNull TransactionContext transaction) {
         updateSnapshots(transaction);
         value = newValue;
     }

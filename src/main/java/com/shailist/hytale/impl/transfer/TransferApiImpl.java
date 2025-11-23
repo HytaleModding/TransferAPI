@@ -47,7 +47,7 @@ public class TransferApiImpl {
         }
 
         @Override
-        public long insert(Object resource, long maxAmount, TransactionContext transaction) {
+        public long insert(Object resource, long maxAmount, @NotNull TransactionContext transaction) {
             return 0;
         }
 
@@ -57,7 +57,7 @@ public class TransferApiImpl {
         }
 
         @Override
-        public long extract(Object resource, long maxAmount, TransactionContext transaction) {
+        public long extract(Object resource, long maxAmount, @NotNull TransactionContext transaction) {
             return 0;
         }
 

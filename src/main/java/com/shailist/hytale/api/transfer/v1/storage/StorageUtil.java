@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 
 import com.shailist.hytale.api.transfer.v1.storage.base.ResourceAmount;
@@ -183,7 +184,7 @@ public final class StorageUtil {
      * or {@code null} if none could be found.
      */
     @Nullable
-    public static <T> ResourceAmount<T> extractAny(@Nullable Storage<T> storage, long maxAmount, TransactionContext transaction) {
+    public static <T> ResourceAmount<T> extractAny(@Nullable Storage<T> storage, long maxAmount, @NotNull TransactionContext transaction) {
         StoragePreconditions.notNegative(maxAmount);
 
         if (storage == null) return null;
@@ -215,7 +216,7 @@ public final class StorageUtil {
      * @return How much was inserted.
      * @see Storage#insert
      */
-    public static <T> long insertStacking(List<? extends SingleSlotStorage<T>> slots, T resource, long maxAmount, TransactionContext transaction) {
+    public static <T> long insertStacking(List<? extends SingleSlotStorage<T>> slots, T resource, long maxAmount, @NotNull TransactionContext transaction) {
         StoragePreconditions.notNegative(maxAmount);
         long amount = 0;
 
@@ -255,7 +256,7 @@ public final class StorageUtil {
      * @param transaction The transaction this operation is part of.
      * @return A nonnegative integer not greater than maxAmount: the amount that was inserted.
      */
-    public static <T> long tryInsertStacking(@Nullable Storage<T> storage, T resource, long maxAmount, TransactionContext transaction) {
+    public static <T> long tryInsertStacking(@Nullable Storage<T> storage, T resource, long maxAmount, @NotNull TransactionContext transaction) {
         StoragePreconditions.notNegative(maxAmount);
 
         try {

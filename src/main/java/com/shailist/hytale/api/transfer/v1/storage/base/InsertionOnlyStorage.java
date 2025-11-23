@@ -37,7 +37,7 @@ public interface InsertionOnlyStorage<T> extends Storage<T> {
 	}
 
 	@Override
-	default long extract(T resource, long maxAmount, TransactionContext transaction) {
+	default long extract(T resource, long maxAmount, @NotNull TransactionContext transaction) {
 		return 0;
 	}
 

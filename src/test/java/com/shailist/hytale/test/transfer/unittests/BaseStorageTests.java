@@ -25,6 +25,7 @@ import com.shailist.hytale.api.transfer.v1.storage.base.ResourceAmount;
 import com.shailist.hytale.test.transfer.unittests.utils.SingleStringStorage;
 import com.shailist.hytale.test.transfer.unittests.utils.StringConstants;
 import com.shailist.hytale.test.transfer.unittests.utils.StringVariant;
+import com.shailist.hytale.test.transfer.unittests.utils.TestStorageUtil;
 import org.junit.jupiter.api.Test;
 
 import com.shailist.hytale.api.transfer.v1.storage.Storage;
@@ -38,19 +39,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BaseStorageTests {
+
     @Test
     public void testSingleVariantStorage() {
-        SingleVariantStorage<StringVariant> storage = new SingleVariantStorage<>() {
-            @Override
-            protected StringVariant getBlankVariant() {
-                return StringVariant.blank();
-            }
-
-            @Override
-            protected long getCapacity(StringVariant variant) {
-                return 10 * StringConstants.UNIT;
-            }
-        };
+        SingleVariantStorage<StringVariant> storage = SingleStringStorage.withFixedCapacity(10L * StringConstants.UNIT);
 
         StringVariant hello = StringVariant.of(StringConstants.HELLO);
         StringVariant world = StringVariant.of(StringConstants.WORLD);
@@ -59,10 +51,7 @@ public class BaseStorageTests {
         assertEquals(StringVariant.blank(), storage.variant);
 
         // Insertion into an empty storage should succeed.
-        try (Transaction tx = Transaction.openOuter()) {
-            assertEquals(StringConstants.UNIT, storage.insert(hello, StringConstants.UNIT, tx));
-            tx.commit();
-        }
+        assertEquals(StringConstants.UNIT, TestStorageUtil.insert(storage, hello, StringConstants.UNIT));
         assertEquals(StringConstants.UNIT, storage.amount);
         assertEquals(hello, storage.variant);
 
@@ -74,34 +63,22 @@ public class BaseStorageTests {
         assertEquals(new ResourceAmount<>(hello, StringConstants.UNIT), StorageUtil.findExtractableContent(storage, null));
 
         // Insertion into a non-empty storage with the same variant should succeed.
-        try (Transaction tx = Transaction.openOuter()) {
-            assertEquals(StringConstants.UNIT, storage.insert(hello, StringConstants.UNIT, tx));
-            tx.commit();
-        }
+        assertEquals(StringConstants.UNIT, TestStorageUtil.insert(storage, hello, StringConstants.UNIT));
         assertEquals(2 * StringConstants.UNIT, storage.amount);
         assertEquals(hello, storage.variant);
 
         // Insertion into a non-empty storage with a different variant should fail.
-        try (Transaction tx = Transaction.openOuter()) {
-            assertEquals(0L, storage.insert(world, StringConstants.UNIT, tx));
-            tx.commit();
-        }
+        assertEquals(0L, TestStorageUtil.insert(storage, world, StringConstants.UNIT));
         assertEquals(2 * StringConstants.UNIT, storage.amount);
         assertEquals(hello, storage.variant);
 
         // Extraction from a non-empty storage with the same variant should succeed.
-        try (Transaction tx = Transaction.openOuter()) {
-            assertEquals(StringConstants.UNIT, storage.extract(hello, StringConstants.UNIT, tx));
-            tx.commit();
-        }
+        assertEquals(StringConstants.UNIT, TestStorageUtil.extract(storage, hello, StringConstants.UNIT));
         assertEquals(StringConstants.UNIT, storage.amount);
         assertEquals(hello, storage.variant);
 
         // Extraction from a non-empty storage with a different variant should fail.
-        try (Transaction tx = Transaction.openOuter()) {
-            assertEquals(0L, storage.extract(world, StringConstants.UNIT, tx));
-            tx.commit();
-        }
+        assertEquals(0L, TestStorageUtil.extract(storage, world, StringConstants.UNIT));
         assertEquals(StringConstants.UNIT, storage.amount);
         assertEquals(hello, storage.variant);
 
@@ -110,27 +87,14 @@ public class BaseStorageTests {
         storage.variant = StringVariant.blank();
 
         // Extraction from an empty storage should fail.
-        try (Transaction tx = Transaction.openOuter()) {
-            assertEquals(0L, storage.extract(hello, StringConstants.UNIT, tx));
-            tx.commit();
-        }
+        assertEquals(0L, TestStorageUtil.extract(storage, hello, StringConstants.UNIT));
         assertEquals(0, storage.amount);
         assertEquals(StringVariant.blank(), storage.variant);
     }
 
 	@Test
 	public void testFilteringStorage() {
-		SingleVariantStorage<StringVariant> storage = new SingleVariantStorage<>() {
-			@Override
-			protected StringVariant getBlankVariant() {
-				return StringVariant.blank();
-			}
-
-			@Override
-			protected long getCapacity(StringVariant variant) {
-				return 10 * StringConstants.UNIT;
-			}
-		};
+        SingleVariantStorage<StringVariant> storage = SingleStringStorage.withFixedCapacity(10L * StringConstants.UNIT);
 		Storage<StringVariant> noHello = new FilteringStorage<>(storage) {
 			@Override
 			protected boolean canExtract(StringVariant resource) {
@@ -145,38 +109,39 @@ public class BaseStorageTests {
 		StringVariant hello = StringVariant.of(StringConstants.HELLO);
 		StringVariant world = StringVariant.of(StringConstants.WORLD);
 
-		// Insertion into the backing storage should succeed.
-		try (Transaction tx = Transaction.openOuter()) {
-			assertEquals(StringConstants.UNIT, storage.insert(hello, StringConstants.UNIT, tx));
-			tx.commit();
-		}
+		// Inserting a non filtered resource should fail.
+		assertEquals(0L, TestStorageUtil.insert(noHello, hello, StringConstants.UNIT));
+        // Inserting a filtered resource should succeed.
+		assertEquals(StringConstants.UNIT, TestStorageUtil.insert(noHello, world, StringConstants.UNIT));
 
-		// Insertion through the filter should fail.
-		assertEquals(0L, StorageUtil.simulateInsert(noHello, hello, StringConstants.UNIT, null));
-		// Extraction should also fail.
-		assertEquals(0L, StorageUtil.simulateExtract(noHello, hello, StringConstants.UNIT, null));
-		// The fluid should be visible.
-		assertEquals(hello, StorageUtil.findStoredResource(noHello));
-		// Test the filter.
-        assertNull(StorageUtil.findStoredResource(noHello, fv -> fv.isOf(StringConstants.WORLD)));
-		// But it can't be extracted, even through a storage view.
+        // Filtering storage should find filtered stored resource
+        assertEquals(world, StorageUtil.findStoredResource(noHello));
+        assertEquals(world, StorageUtil.findStoredResource(noHello, fv -> fv.isOf(StringConstants.WORLD)));
+
+        assertEquals(world, StorageUtil.findExtractableResource(noHello, null));
+        assertEquals(new ResourceAmount<>(world, StringConstants.UNIT), StorageUtil.findExtractableContent(noHello, null));
+
+		// Extracting a non filtered resource should fail.
+		assertEquals(0L, TestStorageUtil.extract(noHello, hello, StringConstants.UNIT));
+        // Extracting filtered resource should succeed.
+		assertEquals(StringConstants.UNIT, TestStorageUtil.extract(noHello, world, StringConstants.UNIT));
+
+        // Adding non-filtered resource to the underlying storage for some tests
+        assertEquals(StringConstants.UNIT, TestStorageUtil.insert(storage, hello, StringConstants.UNIT));
+
+        // Filtering storage should not extract non-filtered stored resource
+        assertEquals(0L, TestStorageUtil.extract(noHello, hello, StringConstants.UNIT));
+        // Filtering storage should find non-filtered stored resource
+        assertEquals(hello, StorageUtil.findStoredResource(noHello));
+        assertEquals(hello, StorageUtil.findStoredResource(noHello, fv -> fv.isOf(StringConstants.HELLO)));
+        // Filtering storage should not find non-filtered extractable stored resource
         assertNull(StorageUtil.findExtractableResource(noHello, null));
         assertNull(StorageUtil.findExtractableContent(noHello, null));
-
-		storage.amount = 0;
-		storage.variant = StringVariant.blank();
-
-		// Lava insertion and extract should proceed just fine.
-		try (Transaction tx = Transaction.openOuter()) {
-			assertEquals(StringConstants.UNIT, noHello.insert(world, StringConstants.UNIT, tx));
-			assertEquals(StringConstants.UNIT, StorageUtil.simulateExtract(noHello, world, StringConstants.UNIT, tx));
-			// Test that simulating doesn't change the state...
-			assertEquals(StringConstants.UNIT, StorageUtil.simulateExtract(noHello, world, StringConstants.UNIT, tx));
-			assertEquals(StringConstants.UNIT, StorageUtil.simulateExtract(noHello, world, StringConstants.UNIT, tx));
-			tx.commit();
-		}
-
-		assertEquals(StringConstants.UNIT, StorageUtil.simulateExtract(storage, world, StringConstants.UNIT, null));
+        // Inserting filtered resource into filtered storage should return the result of inserting into the underlying
+        // storage, which should fail in this case
+        assertEquals(0L, TestStorageUtil.insert(noHello, world, StringConstants.UNIT));
+        // Clear the underlying storage
+        assertEquals(StringConstants.UNIT, TestStorageUtil.extract(storage, hello, StringConstants.UNIT));
 	}
 
 	/**

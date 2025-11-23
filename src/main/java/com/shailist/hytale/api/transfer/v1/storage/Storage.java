@@ -92,7 +92,7 @@ public interface Storage<T> extends Iterable<StorageView<T>> {
      * @param transaction The transaction this operation is part of.
      * @return A non-negative integer not greater than maxAmount: the amount that was inserted.
      */
-    long insert(T resource, long maxAmount, TransactionContext transaction);
+    long insert(T resource, long maxAmount, @NotNull TransactionContext transaction);
 
     /**
      * Return false if calling {@link #extract} will absolutely always return 0, or true otherwise or in doubt.
@@ -112,7 +112,7 @@ public interface Storage<T> extends Iterable<StorageView<T>> {
      * @param transaction The transaction this operation is part of.
      * @return A non-negative integer not greater than maxAmount: the amount that was extracted.
      */
-    long extract(T resource, long maxAmount, TransactionContext transaction);
+    long extract(T resource, long maxAmount, @NotNull TransactionContext transaction);
 
     /**
      * Iterate through the contents of this storage.

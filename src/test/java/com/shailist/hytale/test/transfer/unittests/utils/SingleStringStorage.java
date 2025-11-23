@@ -16,6 +16,15 @@ import java.util.Objects;
  */
 public abstract class SingleStringStorage extends SingleVariantStorage<StringVariant> {
     /**
+     * Create a fluid storage with a fixed capacity.
+     *
+     * @param capacity Fixed capacity of the fluid storage. Must be non-negative.
+     */
+    public static SingleStringStorage withFixedCapacity(long capacity) {
+        return withFixedCapacity(capacity, () -> {});
+    }
+
+    /**
      * Create a fluid storage with a fixed capacity and a change handler.
      *
      * @param capacity Fixed capacity of the fluid storage. Must be non-negative.

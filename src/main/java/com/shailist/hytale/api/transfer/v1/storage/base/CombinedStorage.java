@@ -57,7 +57,7 @@ public class CombinedStorage<T, S extends Storage<T>> implements Storage<T> {
 	}
 
 	@Override
-	public long insert(T resource, long maxAmount, TransactionContext transaction) {
+	public long insert(T resource, long maxAmount, @NotNull TransactionContext transaction) {
 		StoragePreconditions.notNegative(maxAmount);
 		long amount = 0;
 
@@ -81,7 +81,7 @@ public class CombinedStorage<T, S extends Storage<T>> implements Storage<T> {
 	}
 
 	@Override
-	public long extract(T resource, long maxAmount, TransactionContext transaction) {
+	public long extract(T resource, long maxAmount, @NotNull TransactionContext transaction) {
 		StoragePreconditions.notNegative(maxAmount);
 		long amount = 0;
 

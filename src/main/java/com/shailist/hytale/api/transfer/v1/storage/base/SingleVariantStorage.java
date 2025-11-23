@@ -23,6 +23,7 @@ import com.shailist.hytale.api.transfer.v1.storage.StoragePreconditions;
 import com.shailist.hytale.api.transfer.v1.storage.TransferVariant;
 import com.shailist.hytale.api.transfer.v1.transaction.TransactionContext;
 import com.shailist.hytale.api.transfer.v1.transaction.base.SnapshotParticipant;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A storage that can store a single transfer variant at any given time.
@@ -66,7 +67,7 @@ public abstract class SingleVariantStorage<T extends TransferVariant<?>> extends
 	}
 
 	@Override
-	public long insert(T insertedVariant, long maxAmount, TransactionContext transaction) {
+	public long insert(T insertedVariant, long maxAmount, @NotNull TransactionContext transaction) {
 		StoragePreconditions.notBlankNotNegative(insertedVariant, maxAmount);
 
 		if ((insertedVariant.equals(variant) || variant.isBlank()) && canInsert(insertedVariant)) {
@@ -90,7 +91,7 @@ public abstract class SingleVariantStorage<T extends TransferVariant<?>> extends
 	}
 
 	@Override
-	public long extract(T extractedVariant, long maxAmount, TransactionContext transaction) {
+	public long extract(T extractedVariant, long maxAmount, @NotNull TransactionContext transaction) {
 		StoragePreconditions.notBlankNotNegative(extractedVariant, maxAmount);
 
 		if (extractedVariant.equals(variant) && canExtract(extractedVariant)) {

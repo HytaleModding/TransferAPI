@@ -20,6 +20,7 @@
 package com.shailist.hytale.api.transfer.v1.transaction;
 
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A subset of a {@link Transaction} that lets participants properly take part in transactions, manage their state,
@@ -77,7 +78,7 @@ public interface TransactionContext {
 		 *                    (accessed through {@link #getOpenTransaction} for lower nesting depths).
 		 * @param result The result of this transaction: whether it was committed or aborted.
 		 */
-		void onClose(TransactionContext transaction, Result result);
+		void onClose(@NotNull TransactionContext transaction, Result result);
 	}
 
 	/**
