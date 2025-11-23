@@ -75,27 +75,54 @@ public abstract class FilteringStorage<T> implements Storage<T> {
 			return backingStorage;
 		}
 
-		return new FilteringStorage<>(backingStorage) {
-			@Override
-			protected boolean canInsert(T resource) {
-				return allowInsert;
-			}
+        if (backingStorage instanceof FilteringStorage<T> backingFilteringStorage)
+        {
+            return new FilteringStorage<>(backingFilteringStorage) {
+                @Override
+                protected boolean canInsert(T resource) {
+                    return allowInsert && backingFilteringStorage.canInsert(resource);
+                }
 
-			@Override
-			protected boolean canExtract(T resource) {
-				return allowExtract;
-			}
+                @Override
+                protected boolean canExtract(T resource) {
+                    return allowExtract && backingFilteringStorage.canExtract(resource);
+                }
 
-			@Override
-			public boolean supportsInsertion() {
-				return allowInsert && super.supportsInsertion();
-			}
+                @Override
+                public boolean supportsInsertion() {
+                    return allowInsert && backingFilteringStorage.supportsInsertion() && super.supportsInsertion();
+                }
 
-			@Override
-			public boolean supportsExtraction() {
-				return allowExtract && super.supportsExtraction();
-			}
-		};
+                @Override
+                public boolean supportsExtraction() {
+                    return allowExtract && backingFilteringStorage.supportsExtraction() && super.supportsExtraction();
+                }
+            };
+        }
+        else
+        {
+            return new FilteringStorage<>(backingStorage) {
+                @Override
+                protected boolean canInsert(T resource) {
+                    return allowInsert;
+                }
+
+                @Override
+                protected boolean canExtract(T resource) {
+                    return allowExtract;
+                }
+
+                @Override
+                public boolean supportsInsertion() {
+                    return allowInsert && super.supportsInsertion();
+                }
+
+                @Override
+                public boolean supportsExtraction() {
+                    return allowExtract && super.supportsExtraction();
+                }
+            };
+        }
 	}
 
 	protected final Supplier<Storage<T>> backingStorage;
