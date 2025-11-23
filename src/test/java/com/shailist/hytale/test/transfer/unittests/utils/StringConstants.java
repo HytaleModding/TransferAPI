@@ -4,5 +4,6 @@ public class StringConstants {
     public static final String HELLO = "Hello";
     public static final String WORLD = "World";
 
-    public static final int UNIT = 17; // Arbitrary number
+    public static final long UNIT_MILLIBUCKET = 1L; // Arbitrary number
+    public static final long UNIT_BUCKET = 1000L * UNIT_MILLIBUCKET; // Arbitrary number
 }

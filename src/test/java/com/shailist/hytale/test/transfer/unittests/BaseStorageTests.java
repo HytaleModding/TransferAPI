@@ -31,16 +31,15 @@ import com.shailist.hytale.api.transfer.v1.storage.StorageUtil;
 import com.shailist.hytale.api.transfer.v1.storage.StorageView;
 import com.shailist.hytale.api.transfer.v1.storage.base.FilteringStorage;
 import com.shailist.hytale.api.transfer.v1.storage.base.SingleVariantStorage;
-import com.shailist.hytale.api.transfer.v1.transaction.Transaction;
 
+import static com.shailist.hytale.test.transfer.unittests.utils.StringConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BaseStorageTests {
 
     @Test
     public void testSingleVariantStorage() {
-        SingleVariantStorage<StringVariant> storage = SingleStringStorage.withFixedCapacity(10L * StringConstants.UNIT);
+        SingleVariantStorage<StringVariant> storage = SingleStringStorage.withFixedCapacity(10L * UNIT_BUCKET);
 
         StringVariant hello = StringVariant.of(StringConstants.HELLO);
         StringVariant world = StringVariant.of(StringConstants.WORLD);
@@ -49,8 +48,8 @@ public class BaseStorageTests {
         assertEquals(StringVariant.blank(), storage.variant);
 
         // Insertion into an empty storage should succeed.
-        assertEquals(StringConstants.UNIT, TestStorageUtil.insert(storage, hello, StringConstants.UNIT));
-        assertEquals(StringConstants.UNIT, storage.amount);
+        assertEquals(UNIT_BUCKET, TestStorageUtil.insert(storage, hello, UNIT_BUCKET));
+        assertEquals(UNIT_BUCKET, storage.amount);
         assertEquals(hello, storage.variant);
 
         // The string should be visible.
@@ -58,26 +57,26 @@ public class BaseStorageTests {
         assertNull(StorageUtil.findStoredResource(storage, fv -> fv.isOf(StringConstants.WORLD)));
 
         assertEquals(hello, StorageUtil.findExtractableResource(storage, null));
-        assertEquals(new ResourceAmount<>(hello, StringConstants.UNIT), StorageUtil.findExtractableContent(storage, null));
+        assertEquals(new ResourceAmount<>(hello, UNIT_BUCKET), StorageUtil.findExtractableContent(storage, null));
 
         // Insertion into a non-empty storage with the same variant should succeed.
-        assertEquals(StringConstants.UNIT, TestStorageUtil.insert(storage, hello, StringConstants.UNIT));
-        assertEquals(2 * StringConstants.UNIT, storage.amount);
+        assertEquals(UNIT_BUCKET, TestStorageUtil.insert(storage, hello, UNIT_BUCKET));
+        assertEquals(2 * UNIT_BUCKET, storage.amount);
         assertEquals(hello, storage.variant);
 
         // Insertion into a non-empty storage with a different variant should fail.
-        assertEquals(0L, TestStorageUtil.insert(storage, world, StringConstants.UNIT));
-        assertEquals(2 * StringConstants.UNIT, storage.amount);
+        assertEquals(0L, TestStorageUtil.insert(storage, world, UNIT_BUCKET));
+        assertEquals(2 * UNIT_BUCKET, storage.amount);
         assertEquals(hello, storage.variant);
 
         // Extraction from a non-empty storage with the same variant should succeed.
-        assertEquals(StringConstants.UNIT, TestStorageUtil.extract(storage, hello, StringConstants.UNIT));
-        assertEquals(StringConstants.UNIT, storage.amount);
+        assertEquals(UNIT_BUCKET, TestStorageUtil.extract(storage, hello, UNIT_BUCKET));
+        assertEquals(UNIT_BUCKET, storage.amount);
         assertEquals(hello, storage.variant);
 
         // Extraction from a non-empty storage with a different variant should fail.
-        assertEquals(0L, TestStorageUtil.extract(storage, world, StringConstants.UNIT));
-        assertEquals(StringConstants.UNIT, storage.amount);
+        assertEquals(0L, TestStorageUtil.extract(storage, world, UNIT_BUCKET));
+        assertEquals(UNIT_BUCKET, storage.amount);
         assertEquals(hello, storage.variant);
 
         // Empty the storage for the next test
@@ -85,14 +84,14 @@ public class BaseStorageTests {
         storage.variant = StringVariant.blank();
 
         // Extraction from an empty storage should fail.
-        assertEquals(0L, TestStorageUtil.extract(storage, hello, StringConstants.UNIT));
+        assertEquals(0L, TestStorageUtil.extract(storage, hello, UNIT_BUCKET));
         assertEquals(0, storage.amount);
         assertEquals(StringVariant.blank(), storage.variant);
     }
 
 	@Test
 	public void testFilteringStorage() {
-        SingleVariantStorage<StringVariant> storage = SingleStringStorage.withFixedCapacity(10L * StringConstants.UNIT);
+        SingleVariantStorage<StringVariant> storage = SingleStringStorage.withFixedCapacity(10L * UNIT_BUCKET);
 		Storage<StringVariant> noHello = new FilteringStorage<>(storage) {
 			@Override
 			protected boolean canExtract(StringVariant resource) {
@@ -108,27 +107,27 @@ public class BaseStorageTests {
 		StringVariant world = StringVariant.of(StringConstants.WORLD);
 
 		// Inserting a non filtered resource should fail.
-		assertEquals(0L, TestStorageUtil.insert(noHello, hello, StringConstants.UNIT));
+		assertEquals(0L, TestStorageUtil.insert(noHello, hello, UNIT_BUCKET));
         // Inserting a filtered resource should succeed.
-		assertEquals(StringConstants.UNIT, TestStorageUtil.insert(noHello, world, StringConstants.UNIT));
+		assertEquals(UNIT_BUCKET, TestStorageUtil.insert(noHello, world, UNIT_BUCKET));
 
         // Filtering storage should find filtered stored resource
         assertEquals(world, StorageUtil.findStoredResource(noHello));
         assertEquals(world, StorageUtil.findStoredResource(noHello, fv -> fv.isOf(StringConstants.WORLD)));
 
         assertEquals(world, StorageUtil.findExtractableResource(noHello, null));
-        assertEquals(new ResourceAmount<>(world, StringConstants.UNIT), StorageUtil.findExtractableContent(noHello, null));
+        assertEquals(new ResourceAmount<>(world, UNIT_BUCKET), StorageUtil.findExtractableContent(noHello, null));
 
 		// Extracting a non filtered resource should fail.
-		assertEquals(0L, TestStorageUtil.extract(noHello, hello, StringConstants.UNIT));
+		assertEquals(0L, TestStorageUtil.extract(noHello, hello, UNIT_BUCKET));
         // Extracting filtered resource should succeed.
-		assertEquals(StringConstants.UNIT, TestStorageUtil.extract(noHello, world, StringConstants.UNIT));
+		assertEquals(UNIT_BUCKET, TestStorageUtil.extract(noHello, world, UNIT_BUCKET));
 
         // Adding non-filtered resource to the underlying storage for some tests
-        assertEquals(StringConstants.UNIT, TestStorageUtil.insert(storage, hello, StringConstants.UNIT));
+        assertEquals(UNIT_BUCKET, TestStorageUtil.insert(storage, hello, UNIT_BUCKET));
 
         // Filtering storage should not extract non-filtered stored resource
-        assertEquals(0L, TestStorageUtil.extract(noHello, hello, StringConstants.UNIT));
+        assertEquals(0L, TestStorageUtil.extract(noHello, hello, UNIT_BUCKET));
         // Filtering storage should find non-filtered stored resource
         assertEquals(hello, StorageUtil.findStoredResource(noHello));
         assertEquals(hello, StorageUtil.findStoredResource(noHello, fv -> fv.isOf(StringConstants.HELLO)));
@@ -137,9 +136,9 @@ public class BaseStorageTests {
         assertNull(StorageUtil.findExtractableContent(noHello, null));
         // Inserting filtered resource into filtered storage should return the result of inserting into the underlying
         // storage, which should fail in this case
-        assertEquals(0L, TestStorageUtil.insert(noHello, world, StringConstants.UNIT));
+        assertEquals(0L, TestStorageUtil.insert(noHello, world, UNIT_BUCKET));
         // Clear the underlying storage
-        assertEquals(StringConstants.UNIT, TestStorageUtil.extract(storage, hello, StringConstants.UNIT));
+        assertEquals(UNIT_BUCKET, TestStorageUtil.extract(storage, hello, UNIT_BUCKET));
 	}
 
 	/**
@@ -148,11 +147,11 @@ public class BaseStorageTests {
 	 */
 	@Test
 	public void testNonEmptyIteratorWithModifiedView() {
-		SingleVariantStorage<StringVariant> storage = SingleStringStorage.withFixedCapacity(StringConstants.UNIT, () -> { });
+		SingleVariantStorage<StringVariant> storage = SingleStringStorage.withFixedCapacity(UNIT_BUCKET, () -> { });
 		storage.variant = StringVariant.of(StringConstants.HELLO);
 
 		Iterator<StorageView<StringVariant>> iterator = storage.nonEmptyIterator();
-		storage.amount = StringConstants.UNIT;
+		storage.amount = UNIT_BUCKET;
 		// Iterator should have a next element now
         assertTrue(iterator.hasNext());
 		assertEquals(storage, iterator.next());
@@ -168,21 +167,21 @@ public class BaseStorageTests {
         StringVariant hello = StringVariant.of(StringConstants.HELLO);
         StringVariant world = StringVariant.of(StringConstants.WORLD);
 
-        FixedVariantStorage<StringVariant> storage = FixedStringStorage.withFixedCapacity(hello, 10L * StringConstants.UNIT);
+        FixedVariantStorage<StringVariant> storage = FixedStringStorage.withFixedCapacity(hello, 10L * UNIT_BUCKET);
 
         assertEquals(0L, storage.amount);
         assertEquals(StringVariant.blank(), storage.variant);
 
         // Insertion of a non-allowed variant into an empty storage should fail.
-        assertEquals(0L, TestStorageUtil.insert(storage, world, StringConstants.UNIT));
+        assertEquals(0L, TestStorageUtil.insert(storage, world, UNIT_BUCKET));
 
         // Insertion of allowed variant into an empty storage should succeed.
-        assertEquals(StringConstants.UNIT, TestStorageUtil.insert(storage, hello, StringConstants.UNIT));
+        assertEquals(UNIT_BUCKET, TestStorageUtil.insert(storage, hello, UNIT_BUCKET));
 
         // Insertion of a non-allowed variant into a non-empty storage should fail.
-        assertEquals(0L, TestStorageUtil.insert(storage, world, StringConstants.UNIT));
+        assertEquals(0L, TestStorageUtil.insert(storage, world, UNIT_BUCKET));
 
         // Extraction from a non-empty storage with the allowed variant should succeed.
-        assertEquals(StringConstants.UNIT, TestStorageUtil.extract(storage, hello, StringConstants.UNIT));
+        assertEquals(UNIT_BUCKET, TestStorageUtil.extract(storage, hello, UNIT_BUCKET));
     }
 }
