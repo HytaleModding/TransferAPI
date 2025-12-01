@@ -133,12 +133,12 @@ public abstract class SingleVariantStorage<T extends TransferVariant<?>> extends
 	}
 
 	@Override
-	protected ResourceAmount<T> createSnapshot() {
+	protected @NotNull ResourceAmount<T> createSnapshot() {
 		return new ResourceAmount<>(variant, amount);
 	}
 
 	@Override
-	protected void readSnapshot(ResourceAmount<T> snapshot) {
+	protected void readSnapshot(@NotNull ResourceAmount<T> snapshot) {
 		variant = snapshot.resource();
 		amount = snapshot.amount();
 	}

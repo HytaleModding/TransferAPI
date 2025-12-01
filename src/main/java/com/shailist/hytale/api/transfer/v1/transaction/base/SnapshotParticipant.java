@@ -60,15 +60,26 @@ public abstract class SnapshotParticipant<T> implements Transaction.CloseCallbac
 	private final List<T> snapshots = new ArrayList<>();
 
 	/**
-	 * Return a new <b>nonnull</b> object containing the current state of this participant.
-	 * <b>{@code null} may not be returned, or an exception will be thrown!</b>
+	 * Return a clone of the current state of this participant. In practice, the pattern that needs to be implemented in
+     * this method is:
+     * <pre>{@code
+     * return this.clone();
+     * }</pre>
+     * For primitive, simple, and immutable types, cloning isn't necessary, and the implementation becomes:
+     * <pre>{@code
+     * return this.value;
+     * }</pre>
 	 */
-	protected abstract T createSnapshot();
+	protected abstract @NotNull T createSnapshot();
 
 	/**
 	 * Roll back to a state previously created by {@link #createSnapshot}.
+     * In practice, this just means setting the state of the object to the given snapshot state:
+     * <pre>{@code
+     * this.value = snapshot;
+     * }</pre>
 	 */
-	protected abstract void readSnapshot(T snapshot);
+	protected abstract void readSnapshot(@NotNull T snapshot);
 
 	/**
 	 * Signals that the snapshot will not be used anymore, and is safe to cache for next calls to {@link #createSnapshot},

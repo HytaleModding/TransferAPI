@@ -19,7 +19,7 @@
 
 package com.shailist.hytale.test.transfer.unittests;
 
-import com.shailist.hytale.test.transfer.unittests.utils.TransactionalString;
+import com.shailist.hytale.api.transfer.v1.transaction.types.TransactionalValue;
 import org.junit.jupiter.api.Test;
 
 import com.shailist.hytale.api.transfer.v1.transaction.Transaction;
@@ -122,140 +122,140 @@ class TransactionStateTests {
 
     @Test
     public void testOpeningTransactionDoesNothing() {
-        var str = new TransactionalString("Hello");
-        assertEquals("Hello", str.get());
+        var str = new TransactionalValue<String>("Hello");
+        assertEquals("Hello", str.getValue());
 
         try (var transaction = Transaction.openOuter()) {
-            assertEquals("Hello", str.get());
+            assertEquals("Hello", str.getValue());
         }
 
-        assertEquals("Hello", str.get());
+        assertEquals("Hello", str.getValue());
     }
 
     @Test
     public void testAbortingTransactionRevertsValue() {
-        var str = new TransactionalString("Hello");
+        var str = new TransactionalValue<String>("Hello");
 
-        assertEquals("Hello", str.get());
+        assertEquals("Hello", str.getValue());
 
         try (var transaction = Transaction.openOuter()) {
-            str.set("World", transaction);
-            assertEquals("World", str.get());
+            str.assignValue("World", transaction);
+            assertEquals("World", str.getValue());
 
             transaction.abort();
         }
 
-        assertEquals("Hello", str.get());
+        assertEquals("Hello", str.getValue());
     }
 
     @Test
     public void testAbortingTransactionIsImplicit() {
-        var str = new TransactionalString("Hello");
+        var str = new TransactionalValue<String>("Hello");
 
-        assertEquals("Hello", str.get());
+        assertEquals("Hello", str.getValue());
 
         try (var transaction = Transaction.openOuter()) {
-            str.set("World", transaction);
-            assertEquals("World", str.get());
+            str.assignValue("World", transaction);
+            assertEquals("World", str.getValue());
         }
 
-        assertEquals("Hello", str.get());
+        assertEquals("Hello", str.getValue());
     }
 
     @Test
     public void testCommittingTransactionChangesValue() {
-        var str = new TransactionalString("Hello");
+        var str = new TransactionalValue<String>("Hello");
 
-        assertEquals("Hello", str.get());
+        assertEquals("Hello", str.getValue());
 
         try (var transaction = Transaction.openOuter()) {
-            str.set("World", transaction);
-            assertEquals("World", str.get());
+            str.assignValue("World", transaction);
+            assertEquals("World", str.getValue());
 
             transaction.commit();
         }
 
-        assertEquals("World", str.get());
+        assertEquals("World", str.getValue());
     }
 
     @Test
     public void testOpeningNestedTransactionDoesNothing() {
-        var str = new TransactionalString("Hello");
-        assertEquals("Hello", str.get());
+        var str = new TransactionalValue<String>("Hello");
+        assertEquals("Hello", str.getValue());
 
         try (var transaction = Transaction.openOuter()) {
             try (var nestedTransaction = Transaction.openNested(transaction)) {
-                assertEquals("Hello", str.get());
+                assertEquals("Hello", str.getValue());
             }
 
-            assertEquals("Hello", str.get());
+            assertEquals("Hello", str.getValue());
         }
 
-        assertEquals("Hello", str.get());
+        assertEquals("Hello", str.getValue());
     }
 
     @Test
     public void testAbortingNestedTransactionRevertsValue() {
-        var str = new TransactionalString("Hello");
+        var str = new TransactionalValue<String>("Hello");
 
-        assertEquals("Hello", str.get());
+        assertEquals("Hello", str.getValue());
 
         try (var transaction = Transaction.openOuter()) {
             try (var nestedTransaction = Transaction.openNested(transaction)) {
-                str.set("World", nestedTransaction);
+                str.assignValue("World", nestedTransaction);
 
-                assertEquals("World", str.get());
+                assertEquals("World", str.getValue());
 
                 nestedTransaction.abort();
             }
 
-            assertEquals("Hello", str.get());
+            assertEquals("Hello", str.getValue());
         }
 
-        assertEquals("Hello", str.get());
+        assertEquals("Hello", str.getValue());
     }
 
     @Test
     public void testCommittingNestedTransactionChangesValueDuringTransaction() {
-        var str = new TransactionalString("Hello");
+        var str = new TransactionalValue<String>("Hello");
 
-        assertEquals("Hello", str.get());
+        assertEquals("Hello", str.getValue());
 
         try (var transaction = Transaction.openOuter()) {
             try (var nestedTransaction = Transaction.openNested(transaction)) {
-                str.set("World", nestedTransaction);
+                str.assignValue("World", nestedTransaction);
 
-                assertEquals("World", str.get());
+                assertEquals("World", str.getValue());
 
                 nestedTransaction.commit();
             }
 
-            assertEquals("World", str.get());
+            assertEquals("World", str.getValue());
         }
 
-        assertEquals("Hello", str.get());
+        assertEquals("Hello", str.getValue());
     }
 
     @Test
     public void testCommittingNestedAndOuterTransactionChangesValue() {
-        var str = new TransactionalString("Hello");
+        var str = new TransactionalValue<String>("Hello");
 
-        assertEquals("Hello", str.get());
+        assertEquals("Hello", str.getValue());
 
         try (var transaction = Transaction.openOuter()) {
             try (var nestedTransaction = Transaction.openNested(transaction)) {
-                str.set("World", nestedTransaction);
+                str.assignValue("World", nestedTransaction);
 
-                assertEquals("World", str.get());
+                assertEquals("World", str.getValue());
 
                 nestedTransaction.commit();
             }
 
-            assertEquals("World", str.get());
+            assertEquals("World", str.getValue());
 
             transaction.commit();
         }
 
-        assertEquals("World", str.get());
+        assertEquals("World", str.getValue());
     }
 }
