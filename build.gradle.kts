@@ -10,8 +10,11 @@ plugins {
     id("com.jfrog.artifactory") version "6.0.0+"
 }
 
-group = "com.shailist.hytale"
+group = "dev.hytalemodding"
 version = "0.1.0-SNAPSHOT"
+
+var packageName = "transfer-api"
+var fullPackageName = "$group.$packageName"
 
 repositories {
     mavenCentral()
@@ -32,6 +35,13 @@ java {
     withJavadocJar()
 }
 
+tasks.jar {
+    from(project.projectDir) {
+        include("LICENSE", "LICENSE-FABRIC", "NOTICE")
+        into("META-INF/licensing/$fullPackageName")
+    }
+}
+
 tasks.test {
     useJUnitPlatform()
 }
@@ -49,7 +59,7 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
-            artifactId = "transfer-api"
+            artifactId = packageName
         }
     }
 
@@ -61,7 +71,7 @@ publishing {
 
 
 configure<ArtifactoryPluginConvention> {
-    val hytaleModdingArtifactoryContextUrl = "https://maven.hytalemodding.guide/artifactory"
+    val hytaleModdingArtifactoryContextUrl = "https://maven.hytalemodding.dev/artifactory"
     // Artifactory publishing configuration
     val hytaleModdingArtifactoryUser: String? =
         providers.gradleProperty("hytaleModdingArtifactoryUsername").getOrNull()
@@ -76,12 +86,11 @@ configure<ArtifactoryPluginConvention> {
 
     publish {
         repository {
-            
-            setRepoKey(hytaleModdingPublishRepoKey)
+            repoKey = hytaleModdingPublishRepoKey
 
             // Use username/password authentication only (token support removed)
-            setUsername(hytaleModdingArtifactoryUser)
-            setPassword(hytaleModdingArtifactoryPassword)
+            username = hytaleModdingArtifactoryUser
+            password = hytaleModdingArtifactoryPassword
 
             // Use Maven layout (no need to call setMavenCompatible, handled by default)
         }
@@ -92,8 +101,6 @@ configure<ArtifactoryPluginConvention> {
             setPublishPom(true)
             // Do not publish Ivy descriptors
             setPublishIvy(false)
-            // Disable build info publishing to avoid 403 permission errors
-            setPublishBuildInfo(false)
         }
     }
 }
